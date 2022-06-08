@@ -84,7 +84,7 @@ export const UpdateEvent = ({
         .then((res) => (formValues.image = res.data.url));
 
       axios
-        .post("http://localhost:5000/updateEvent", {
+        .post("https://quefem.herokuapp.com/updateEvent", {
           formValues,
           user: user.uid,
         })
