@@ -1,8 +1,8 @@
-
 /*eslint import/no-webpack-loader-syntax: off*/
 import React, { useState, useRef, useEffect } from "react";
 // @ts-ignore
-import ReactMapGl, { Marker } from "!react-map-gl";
+import mapboxgl from "!mapbox-gl";
+
 import { useNavigate } from "react-router-dom";
 import styles from "./UpdateEvent.module.css";
 import axios from "axios";
@@ -39,21 +39,28 @@ export const UpdateEvent = ({
     image: image,
     location: coordinates,
   });
-  console.log(formValues);
-  const getCoords = (e) => {
-    setFormValues({
-      ...formValues,
-      location: [e.lngLat.lat, e.lngLat.lng],
-    });
-  };
 
-  const viewport = useRef({
-    latitude: 41.6173,
-    longitude: 0.6292,
-    zoom: 11,
-    height: "40vh",
-    width: "90vw",
-  });
+  const [location, setLocation] = useState([]);
+
+  useEffect(() => {
+    if (location.length) {
+      setFormValues({ ...formValues, location: location });
+    }
+  }, [location]);
+
+  const handleSaveLocation = (e) => {
+    if (formValues.saveLocation === false) {
+      setFormValues({
+        ...formValues,
+        saveLocation: true,
+      });
+    } else {
+      setFormValues({
+        ...formValues,
+        saveLocation: false,
+      });
+    }
+  };
 
   const handleFormChange = (e) => {
     if (e.target.id === "upload-img") {
@@ -77,24 +84,63 @@ export const UpdateEvent = ({
         .then((res) => (formValues.image = res.data.url));
 
       axios
-        .post("https://quefem.herokuapp.com/updateEvent", {
+        .post("http://localhost:5000/updateEvent", {
           formValues,
-          _id: eventToUpdate._id,
           user: user.uid,
         })
         .then((res) => {
           setEventsList([
             ...eventsList.filter((evt) => evt._id !== eventToUpdate._id),
-            res.data.event,
+            res.data.newEvent,
           ]);
-        })
-        .then(() => {
+
           navigate("/", { replace: true });
         });
     } else {
       console.log("fill all camps");
     }
   };
+
+  mapboxgl.accessToken =
+    "pk.eyJ1IjoibWlrZWJlZWdhciIsImEiOiJja3c1NXJ1bm0wNDZtMnZsNWZyemI2MDNhIn0.bUNhmu4ASbT7GIb25uExSw";
+
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const [lng, setLng] = useState(0.6292);
+  const [lat, setLat] = useState(41.6173);
+  const [zoom, setZoom] = useState(9);
+
+  useEffect(() => {
+    if (map.current) return;
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [lng, lat],
+      zoom: zoom,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!map.current) return;
+    map.current.on("move", () => {
+      setLng(map.current.getCenter().lng.toFixed(4));
+      setLat(map.current.getCenter().lat.toFixed(4));
+      setZoom(map.current.getZoom().toFixed(2));
+    });
+
+    map.current.on("click", (e) => {
+      setLocation([e.lngLat.lat, e.lngLat.lng]);
+
+      if (map.current._markers.length) {
+        map.current._markers.map((marker) => {
+          marker.remove();
+        });
+      }
+
+      let marker = new mapboxgl.Marker({ color: "#4dabf7" });
+      marker.setLngLat([e.lngLat.lng, e.lngLat.lat]).addTo(map.current);
+    });
+  }, []);
 
   return (
     <div className={styles.addEvent}>
@@ -195,25 +241,24 @@ export const UpdateEvent = ({
         </p>
         <div className={styles.mapGroup}>
           <p>Clica al mapa per afegir la ubicació</p>
-          <ReactMapGl
-            onClick={getCoords}
-            style={{ width: "90vw", height: "40vh" }}
-            mapStyle="mapbox://styles/mapbox/streets-v9"
-            {...viewport.current}
-            ref={viewport}
-            mapboxAccessToken="pk.eyJ1IjoibWlrZWJlZWdhciIsImEiOiJja3c1NXJ1bm0wNDZtMnZsNWZyemI2MDNhIn0.bUNhmu4ASbT7GIb25uExSw"
-            onMove={(viewport) => {
-              viewport.current = viewport;
-            }}
-          >
-            <Marker
-              key="location"
-              latitude={formValues.location.lng}
-              longitude={formValues.location.lat}
-            ></Marker>
-          </ReactMapGl>
-        </div>
 
+          <div>
+            <div
+              style={{ height: "40vh", width: "80vw", marginTop: "5vh" }}
+              ref={mapContainer}
+              className="map-container"
+            />
+          </div>
+        </div>
+        <div className={styles.checkboxGroup}>
+          <input
+            type="checkbox"
+            id="cbox"
+            value={formValues.saveLocation}
+            onChange={handleSaveLocation}
+          />
+          <label htmlFor="cbox">Guardar ubicació per futurs events</label>
+        </div>
         <button type="submit">Afegeix</button>
       </form>
     </div>

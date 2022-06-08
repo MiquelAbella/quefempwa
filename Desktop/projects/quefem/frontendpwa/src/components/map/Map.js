@@ -1,9 +1,6 @@
 /*eslint import/no-webpack-loader-syntax: off*/
 import React, { useRef, useEffect, useState } from "react";
 
-// // @ts-ignore
-// import ReactMapGl, { Marker } from "!react-map-gl";
-
 // @ts-ignore
 import mapboxgl from "!mapbox-gl";
 
@@ -46,26 +43,13 @@ export const Map = ({ eventsList, setCurrentEvent, user }) => {
   }, [map.current]);
 
   useEffect(() => {
-    if (!map.current) return; // wait for map to initialize
+    if (!map.current) return;
     map.current.on("move", () => {
       setLng(map.current.getCenter().lng.toFixed(4));
       setLat(map.current.getCenter().lat.toFixed(4));
       setZoom(map.current.getZoom().toFixed(2));
     });
   });
-  //
-  // const [isMounted, setIsMounted] = useState(false);
-  // const viewport = useRef({
-  //   latitude: 41.6173,
-  //   longitude: 0.6292,
-  //   zoom: 11,
-  //   height: "80vh",
-  //   width: "80vw",
-  // });
-
-  // useEffect(() => {
-  //   setIsMounted(!isMounted);
-  // }, []);
 
   return (
     <div>
