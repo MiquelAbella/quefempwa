@@ -6,6 +6,10 @@
   font-family: "Poppins", sans-serif;
 }
 
+body {
+  overscroll-behavior: contain;
+}
+
 .App {
   display: flex;
   flex-direction: column;

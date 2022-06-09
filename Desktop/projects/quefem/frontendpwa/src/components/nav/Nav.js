@@ -40,7 +40,7 @@ export const Nav = ({
         </Link>
         <li className={styles.li}>
           <select className={styles.filter} onChange={handleSetDateFilter}>
-            <option value={Infinity}>Data</option>
+            <option value={Infinity}>Tots</option>
             <option value={Date.now() + oneMonth}>Mes</option>
             <option value={Date.now() + oneWeek}>Setmana</option>
             <option value={Date.now() + oneDay}>Dia</option>
@@ -48,7 +48,7 @@ export const Nav = ({
         </li>
         <li className={styles.li}>
           <select className={styles.filter} onChange={handleSetFilter}>
-            <option value="Tots">Tipus</option>
+            <option value="Tots">Tots</option>
             <option value="Concerts">Concerts</option>
             <option value="Teatre">Teatre</option>
             <option value="Festa">Festa</option>

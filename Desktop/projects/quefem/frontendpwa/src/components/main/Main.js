@@ -10,6 +10,7 @@ export const Main = ({
   setEventToUpdate,
   setCurrentEvent,
   eventsList,
+  setEventsList,
   isLoading,
   filter,
   dateFilter,
@@ -21,6 +22,8 @@ export const Main = ({
           if (filter === "Tots" && Date.parse(event.date) < dateFilter) {
             return (
               <Event
+                eventsList={eventsList}
+                setEventsList={setEventsList}
                 setCurrentEvent={setCurrentEvent}
                 key={idx}
                 index={idx}

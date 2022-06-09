@@ -14,17 +14,30 @@ function App() {
   const [user, setUser] = useState(null);
   const [isLoginShown, setIsLoginShown] = useState(false);
   const [eventToUpdate, setEventToUpdate] = useState({});
-  const [currentEvent, setCurrentEvent] = useState({});
+  const [currentEvent, setCurrentEvent] = useState(null);
   const [eventsList, setEventsList] = useState([]);
-  const [allEvents, setallEvents] = useState([]);
   const [filter, setFilter] = useState("Tots");
   const [dateFilter, setDateFilter] = useState(Infinity);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [lastPage, setLastPage] = useState("/");
   const [isLoading, setIsLoading] = useState(true);
+  const [initialZoom, setInitialZoom] = useState(9);
+
+  useEffect(() => {
+    let eventsToFilter = [...eventsList];
+    setFilteredEvents(
+      eventsToFilter.filter((evt) => {
+        return filter === "Tots"
+          ? new Date(evt.date).valueOf() < dateFilter
+          : new Date(evt.date).valueOf() < dateFilter &&
+              filter.toLowerCase() === evt.category;
+      })
+    );
+  }, [filter, dateFilter, eventsList]);
 
   useEffect(() => {
     axios
-      .get("https://quefem.herokuapp.com/getEvents")
+      .get("http://localhost:5000/getEvents")
       .then((res) => {
         if (res.data.ok) {
           setEventsList(
@@ -34,7 +47,7 @@ function App() {
               );
             })
           );
-          setallEvents(
+          setFilteredEvents(
             res.data.events.sort((a, b) => {
               return (
                 parseFloat(Date.parse(a.date)) - parseFloat(Date.parse(b.date))
@@ -58,7 +71,6 @@ function App() {
         setIsLoginShown={setIsLoginShown}
         setEventsList={setEventsList}
         eventsList={eventsList}
-        allEvents={allEvents}
       />
       {isLoginShown && !user ? (
         <Login
@@ -72,6 +84,12 @@ function App() {
           path="/"
           element={
             <Map
+              filteredEvents={filteredEvents}
+              initialZoom={initialZoom}
+              setInitialZoom={setInitialZoom}
+              currentEvent={currentEvent}
+              filter={filter}
+              dateFilter={dateFilter}
               eventsList={eventsList}
               setCurrentEvent={setCurrentEvent}
               user={user}
@@ -82,6 +100,12 @@ function App() {
             path="/"
             element={
               <Map
+                filteredEvents={filteredEvents}
+                initialZoom={initialZoom}
+                setInitialZoom={setInitialZoom}
+                currentEvent={currentEvent}
+                filter={filter}
+                dateFilter={dateFilter}
                 eventsList={eventsList}
                 setCurrentEvent={setCurrentEvent}
                 user={user}
@@ -100,6 +124,7 @@ function App() {
               user={user}
               setCurrentEvent={setCurrentEvent}
               eventsList={eventsList}
+              setEventsList={setEventsList}
             />
           }
         >
