@@ -26,19 +26,24 @@ export const Event = ({
   };
 
   const handleDeleteEvent = () => {
-    axios.post("http://localhost:5000/deleteEvent", event).then((res) => {
-      console.log(res.data);
-      setEventsList([
-        ...eventsList.filter((evt) => evt._id !== res.data.event._id),
-      ]);
-    });
+    axios
+      .post("https://quefem.herokuapp.com/deleteEvent", event)
+      .then((res) => {
+        console.log(res.data);
+        setEventsList([
+          ...eventsList.filter((evt) => evt._id !== res.data.event._id),
+        ]);
+      });
   };
 
   return (
     <div className={styles.event}>
       <div
         className={styles.image}
-        style={{ backgroundImage: `url(${event.image})`, backgroundSize: "cover" }}
+        style={{
+          backgroundImage: `url(${event.image})`,
+          backgroundSize: "cover",
+        }}
       ></div>
       <p className={styles.date}>{event.date}</p>
       <h4 className={styles.title}>{event.title}</h4>
