@@ -69,10 +69,7 @@ export const Map = ({
   useEffect(() => {
     filteredEvents.map((event) => {
       new mapboxgl.Marker({ color: "#4dabf7" })
-        .setLngLat([
-          event.coordinates.lat + Math.floor(Math.random() * 1000) / 8500000,
-          event.coordinates.lng + Math.floor(Math.random() * 1000) / 8500000,
-        ])
+        .setLngLat([event.coordinates.lat, event.coordinates.lng])
         .addTo(map.current)
         .getElement()
         .addEventListener("click", () => {
