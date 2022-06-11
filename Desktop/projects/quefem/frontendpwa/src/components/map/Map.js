@@ -9,7 +9,6 @@ import styles from "./Map.module.css";
 import addButton from "../../assets/addButton.png";
 
 export const Map = ({
-  eventsList,
   setCurrentEvent,
   user,
   filter,
@@ -24,6 +23,7 @@ export const Map = ({
     "pk.eyJ1IjoibWlrZWJlZWdhciIsImEiOiJja3c1NXJ1bm0wNDZtMnZsNWZyemI2MDNhIn0.bUNhmu4ASbT7GIb25uExSw";
 
   const mapContainer = useRef(null);
+  const [isMarkerLoading, setIsMarkerLoading] = useState(true);
   const map = useRef(null);
   const [lng, setLng] = useState(() => {
     if (currentEvent) {
@@ -55,6 +55,7 @@ export const Map = ({
   }, []);
 
   useEffect(() => {
+    setIsMarkerLoading(true);
     if (filter !== "Tots" || dateFilter !== Infinity) {
       map.current.remove();
       map.current = new mapboxgl.Map({
@@ -64,6 +65,7 @@ export const Map = ({
         zoom: zoom,
       });
     }
+    setIsMarkerLoading(false);
   }, [filter, dateFilter]);
 
   useEffect(() => {
@@ -77,6 +79,7 @@ export const Map = ({
           navigate(`/event/${event._id}`, { replace: true });
         });
     });
+    setIsMarkerLoading(false);
   }, [map.current, filteredEvents]);
 
   useEffect(() => {
@@ -90,9 +93,15 @@ export const Map = ({
 
   return (
     <div>
+      <h1 className={styles.loadingMsg}>Carregant</h1>
       <div>
         <div
-          style={{ height: "80vh", width: "80vw", marginTop: "5vh" }}
+          style={{
+            height: "80vh",
+            width: "80vw",
+            marginTop: "5vh",
+            opacity: `${isMarkerLoading ? "0" : "1"}`,
+          }}
           ref={mapContainer}
           className="map-container"
         />

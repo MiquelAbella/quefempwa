@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 // @ts-ignore
 import mapboxgl from "!mapbox-gl";
+import Swal from "sweetalert2";
 
 import { useNavigate } from "react-router-dom";
 import styles from "./UpdateEvent.module.css";
@@ -41,6 +42,7 @@ export const UpdateEvent = ({
   });
 
   const [location, setLocation] = useState([]);
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
 
   useEffect(() => {
     if (location.length) {
@@ -71,6 +73,7 @@ export const UpdateEvent = ({
   };
 
   const submitForm = async (e) => {
+    setIsUpdateLoading(true);
     e.preventDefault();
     if (!Object.values(formValues).filter((val) => val === "").length) {
       const formData = new FormData();
@@ -93,11 +96,12 @@ export const UpdateEvent = ({
             ...eventsList.filter((evt) => evt._id !== eventToUpdate._id),
             res.data.newEvent,
           ]);
-
+          setIsUpdateLoading(false);
           navigate("/", { replace: true });
         });
     } else {
-      console.log("fill all camps");
+      setIsUpdateLoading(false);
+      Swal.fire("Omple tots els camps", "", "info");
     }
   };
 
@@ -259,7 +263,11 @@ export const UpdateEvent = ({
           />
           <label htmlFor="cbox">Guardar ubicació per futurs events</label>
         </div>
-        <button type="submit">Afegeix</button>
+        {!isUpdateLoading ? (
+          <button type="submit">Afegeix</button>
+        ) : (
+          <p>Canviant...</p>
+        )}
       </form>
     </div>
   );

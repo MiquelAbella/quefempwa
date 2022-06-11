@@ -1,14 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import styles from "./Login.module.css";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export const Login = ({ setIsLoginShown, setUser }) => {
   const [isLoging, setIsLoging] = useState(true);
-
-
-  const getCoords = (e) => {
-    console.log(e);
-  };
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
 
   const [loginValues, setLoginValues] = useState({
     lemail: "",
@@ -26,16 +23,30 @@ export const Login = ({ setIsLoginShown, setUser }) => {
   const handleRegisterChange = (e) => {
     setRegisterValues({ ...registerValues, [e.target.name]: e.target.value });
   };
-
   const handleSubmitLogin = () => {
+    console.log(loginValues);
+    setIsLoginLoading(true);
     axios
       .post("https://quefem.herokuapp.com/loginUser", loginValues)
-      .then((res) => setUser(res.data.user));
+      .then((res) => {
+        if (!res.data.ok) {
+          Swal.fire(res.data.msg, "", "info");
+        }
+        setIsLoginLoading(false);
+        setUser(res.data.user);
+      });
   };
   const handleSubmitRegister = () => {
+    setIsLoginLoading(true);
     axios
       .post("https://quefem.herokuapp.com/createUser", registerValues)
-      .then((res) => setUser(res.data.user));
+      .then((res) => {
+        if (!res.data.ok) {
+          Swal.fire(res.data.msg, "", "info");
+        }
+        setIsLoginLoading(false);
+        setUser(res.data.user);
+      });
   };
 
   const handleSwitchForm = () => {
@@ -67,9 +78,13 @@ export const Login = ({ setIsLoginShown, setUser }) => {
               name="lpassword"
               onChange={handleLogingChange}
             />
-            <button className={styles.button} onClick={handleSubmitLogin}>
-              Entra
-            </button>
+            {!isLoginLoading ? (
+              <button className={styles.button} onClick={handleSubmitLogin}>
+                Entra
+              </button>
+            ) : (
+              <p>Carregant</p>
+            )}
           </div>
           <p className={styles.switcher} onClick={handleSwitchForm}>
             No tens compte?
@@ -103,9 +118,13 @@ export const Login = ({ setIsLoginShown, setUser }) => {
               name="rpassword2"
               onChange={handleRegisterChange}
             />
-            <button className={styles.button} onClick={handleSubmitRegister}>
-              Registra't
-            </button>
+            {!isLoginLoading ? (
+              <button className={styles.button} onClick={handleSubmitRegister}>
+                Registra't
+              </button>
+            ) : (
+              <p>Carregant</p>
+            )}
           </div>
           <p className={styles.switcher} onClick={handleSwitchForm}>
             Ja tens compte?

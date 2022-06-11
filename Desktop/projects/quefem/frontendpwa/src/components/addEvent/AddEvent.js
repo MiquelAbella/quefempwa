@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 // import ReactMapGl, { Marker } from "!react-map-gl";
 // @ts-ignore
 import mapboxgl from "!mapbox-gl";
-
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import styles from "./AddEvent.module.css";
 import axios from "axios";
@@ -24,6 +24,7 @@ export const AddEvent = ({ user, setEventsList, eventsList }) => {
   });
 
   const [location, setLocation] = useState([]);
+  const [isAddLoading, setIsAddLoading] = useState(false);
 
   let navigate = useNavigate();
 
@@ -50,6 +51,7 @@ export const AddEvent = ({ user, setEventsList, eventsList }) => {
   };
 
   const submitForm = async (e) => {
+    setIsAddLoading(true);
     e.preventDefault();
     if (!Object.values(formValues).filter((val) => val === "").length) {
       const formData = new FormData();
@@ -69,11 +71,12 @@ export const AddEvent = ({ user, setEventsList, eventsList }) => {
         })
         .then((res) => {
           setEventsList([...eventsList, res.data.event]);
-
+          setIsAddLoading(false);
           navigate("/", { replace: true });
         });
     } else {
-      console.log("fill all camps");
+      Swal.fire("Omple tots els camps", "", "info");
+      setIsAddLoading(false);
     }
   };
 
@@ -241,7 +244,11 @@ export const AddEvent = ({ user, setEventsList, eventsList }) => {
           />
           <label htmlFor="cbox">Guardar ubicació per futurs events</label>
         </div>
-        <button type="submit">Afegeix</button>
+        {!isAddLoading ? (
+          <button type="submit">Afegeix</button>
+        ) : (
+          <p>Afegint...</p>
+        )}
       </form>
     </div>
   );
